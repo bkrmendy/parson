@@ -22,7 +22,10 @@ export const upper = sat(x => {
     return inCharRangeOf('A', 'Z')(x);
 });
 
-export const anyChar = sat(_ => true);
+export const anyChar = sat(x => {
+    assert(x.length === 1);
+    return true;
+});
 
 export const letter = plus(lower, upper);
 export const alphanum = plus(letter, digit);

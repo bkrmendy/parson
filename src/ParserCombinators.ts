@@ -17,17 +17,10 @@ export const bind = <A, B>(p: Parser<A>, f: (a: A) => Parser<B>): Parser<B> => (
         return [];
     }
 
-    const x = res.map(({ result, rest }) => {
+    return res.flatMap(({ result, rest }) => {
         const g = f(result)(rest);
         return g;
     });
-
-    let h: ParserCombinatorResult<B>[] = [];
-    for (const r of x) {
-        h = [...h, ...r]
-    }
-
-    return h;
 }
 
 export const seq = <A, B>(p: Parser<A>, q: Parser<B>): Parser<[A, B]> => (
