@@ -53,8 +53,7 @@ export const plus = <A>(p: Parser<A>, q: Parser<A>): Parser<A> => (source) => {
     return p(source).concat(...q(source));
 }
 
-export const charp = (c: char) => sat(x => {
-    assert(x.length === 1);
+export const charp = (c: string) => sat(x => {
     return x === c;
 });
 

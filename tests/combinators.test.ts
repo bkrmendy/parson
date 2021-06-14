@@ -1,7 +1,7 @@
 import { ImageRun } from "../src/BasicMark.types";
 import { imageLink, linktext, plaintext } from "../src/BasicMarkParser";
 import { bracketed, lower, nat, parenthesised, upper, word } from "../src/CombinatorLib";
-import { between, charp } from "../src/ParserCombinators";
+import { between, bind, charp, Parser, result } from "../src/ParserCombinators";
 
 describe("combinator tests", () => {
     it("lower", () => {
@@ -90,4 +90,26 @@ describe("combinator tests", () => {
         expect(img.alt).toEqual("alt text");
         expect(img.href).toEqual("https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png");
     })
+
+    it("css", () => {
+        const source = "[123]{.blue}";
+
+        const cssClass = bind(charp("."), _ => plaintext);
+
+        const parser: Parser<EndResult> = bind(
+            bracketed(nat),
+            a => bind(
+                between(charp("{"), cssClass, charp("}")),
+                b => result({ type: "span", text: a, class: b })
+            ));
+
+        const res = parser(source);
+        expect(res[0].result).toEqual({ type: "span", text: 123, class: "blue" });
+    });
 });
+
+interface EndResult {
+    type: "span";
+    text: number;
+    class: string;
+}

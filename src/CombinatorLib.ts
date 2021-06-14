@@ -29,7 +29,7 @@ export const anyChar = sat(x => {
 
 export const letter = plus(lower, upper);
 export const alphanum = plus(letter, digit);
-export const las /* letter, alphanum, space */ = plus(alphanum, charp(" "));
+export const las /* alphanum, space */ = plus(alphanum, charp(" "));
 
 export const linkLetter = plus(
     alphanum,
