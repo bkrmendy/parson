@@ -29,7 +29,8 @@ export const anyChar = sat(x => {
 
 export const letter = plus(lower, upper);
 export const alphanum = plus(letter, digit);
-export const las /* alphanum, space */ = plus(alphanum, charp(" "));
+export const space = charp(" ");
+export const las /* alphanum, space */ = plus(alphanum, space);
 
 export const linkLetter = plus(
     alphanum,
@@ -50,3 +51,5 @@ export const nat: Parser<number> = bind(many1(digit), x => result(parseFloat(x.j
 
 export const parenthesised = <T>(p: Parser<T>) => between(charp("("), p, charp(")"));
 export const bracketed = <T>(p: Parser<T>) => between(charp("["), p, charp("]"));
+
+export const sepBy1 = <T, S>(p: Parser<T>, sep: Parser<S>): Parser<T[]> => many(bind(sep, _ => p));

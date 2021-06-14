@@ -1,7 +1,7 @@
 import { ImageRun } from "../src/BasicMark.types";
 import { imageLink, linktext, plaintext } from "../src/BasicMarkParser";
-import { bracketed, lower, nat, parenthesised, upper, word } from "../src/CombinatorLib";
-import { between, bind, charp, Parser, result } from "../src/ParserCombinators";
+import { bracketed, letter, lower, nat, parenthesised, sepBy1, space, upper, word } from "../src/CombinatorLib";
+import { between, bind, charp, many1, Parser, result } from "../src/ParserCombinators";
 
 describe("combinator tests", () => {
     it("lower", () => {
@@ -92,9 +92,9 @@ describe("combinator tests", () => {
     })
 
     it("css", () => {
-        const source = "[123]{.blue}";
+        const source = "[123]{#blue}";
 
-        const cssClass = bind(charp("."), _ => plaintext);
+        const cssClass = bind(charp("#"), _ => plaintext);
 
         const parser: Parser<EndResult> = bind(
             bracketed(nat),
@@ -105,6 +105,18 @@ describe("combinator tests", () => {
 
         const res = parser(source);
         expect(res[0].result).toEqual({ type: "span", text: 123, class: "blue" });
+    });
+
+    it("words", () => {
+        const source = " asd dsa kldsa dksa";
+
+        const parser = sepBy1(word, space);
+
+        const res = parser(source);
+
+        console.log(res);
+
+        expect(res[0].result).toEqual(["asd", "dsa", "kldsa", "dksa"]);
     });
 });
 
