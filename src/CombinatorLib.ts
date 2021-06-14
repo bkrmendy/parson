@@ -1,5 +1,5 @@
 import assert from "assert";
-import { bind, char, many1, Parser, plus, result, sat } from "./ParserCombinators";
+import { between, bind, char, charp, many, many1, Parser, plus, result, sat } from "./ParserCombinators";
 
 const inCharRangeOf = (low: char, hi: char) => (c: char) => {
     assert(low.length === 1);
@@ -22,8 +22,16 @@ export const upper = sat(x => {
     return inCharRangeOf('A', 'Z')(x);
 });
 
+export const anyChar = sat(_ => true);
+
 export const letter = plus(lower, upper);
 export const alphanum = plus(letter, digit);
+export const las /* letter, alphanum, space */ = plus(alphanum, charp(" "));
+
+export const linkLetter = plus(
+    alphanum,
+    sat(c => [":", "/", "-", "."].includes(c)));
+export const urlSrc = many(linkLetter);
 
 export const wordI: Parser<string> = bind(
     letter,
@@ -36,3 +44,6 @@ export const wordI: Parser<string> = bind(
 export const word: Parser<string> = plus(wordI, result(""));
 
 export const nat: Parser<number> = bind(many1(digit), x => result(parseFloat(x.join(''))));
+
+export const parenthesised = <T>(p: Parser<T>) => between(charp("("), p, charp(")"));
+export const bracketed = <T>(p: Parser<T>) => between(charp("["), p, charp("]"));

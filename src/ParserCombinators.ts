@@ -68,3 +68,9 @@ export const charp = (c: char) => sat(x => {
 export const many1 = <T>(p: Parser<T>): Parser<T[]> => bind(p, t => bind(many(p), ts => result([t, ...ts])));
 
 export const many = <T>(p: Parser<T>): Parser<T[]> => plus(many1(p), result([]));
+
+export const between = <A, B, C>(start: Parser<A>, p: Parser<B>, end: Parser<C>): Parser<B> => (
+    bind(start, _ =>
+        bind(p, res =>
+            bind(end, _ => result(res))))
+);
