@@ -1,0 +1,38 @@
+import assert from "assert";
+import { bind, char, many1, Parser, plus, result, sat } from "./ParserCombinators";
+
+const inCharRangeOf = (low: char, hi: char) => (c: char) => {
+    assert(low.length === 1);
+    assert(hi.length === 1);
+    return low.charCodeAt(0) <= c.charCodeAt(0) && c.charCodeAt(0) <= hi.charCodeAt(0);
+};
+
+export const digit = sat(x => {
+    assert(x.length === 1);
+    return inCharRangeOf('0', '9')(x);
+});
+
+export const lower = sat(x => {
+    assert(x.length === 1);
+    return inCharRangeOf('a', 'z')(x);
+});
+
+export const upper = sat(x => {
+    assert(x.length === 1);
+    return inCharRangeOf('A', 'Z')(x);
+});
+
+export const letter = plus(lower, upper);
+export const alphanum = plus(letter, digit);
+
+export const wordI: Parser<string> = bind(
+    letter,
+    (x: char) => bind(
+        word,
+        (xs: string) => result(x.concat(xs))
+    )
+);
+
+export const word: Parser<string> = plus(wordI, result(""));
+
+export const nat: Parser<number> = bind(many1(digit), x => result(parseFloat(x.join(''))));
