@@ -49,3 +49,4 @@ export const parenthesised = <T>(p: Parser<T>) => between(chr("("), p, chr(")"))
 export const bracketed = <T>(p: Parser<T>) => between(chr("["), p, chr("]"));
 
 export const sepBy1 = <T, S>(p: Parser<T>, sep: Parser<S>): Parser<T[]> => many(bind(sep, _ => p));
+export const sepBy = <T, S>(p: Parser<T>, sep: Parser<S>): Parser<T[]> => plus(sepBy1(p, sep), result([]));
