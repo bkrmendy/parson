@@ -1,129 +1,79 @@
-import { ImageRun } from "../src/BasicMark.types";
-import { imageLink, linktext, plaintext } from "../src/BasicMarkParser";
-import { bracketed, letter, lower, nat, parenthesised, sepBy1, space, upper, word } from "../src/CombinatorLib";
-import { between, bind, chr, many1, Parser, result, str } from "../src/ParserCombinators";
+import { Parser, plus } from "../src/CombinatorBase";
+import { anyChar, bracketed, digit, letter, lower, nat, sepBy1, space, upper, word } from "../src/CombinatorLib";
+import { between, chr, many1, seq, str } from "../src/ParserCombinators";
+
+interface Case<T> {
+    source: string;
+    expected: T | null;
+}
+
+const suite = <T>(parser: Parser<T>, cases: Case<T>[]) => {
+    for (const { source, expected } of cases) {
+        const res = parser(source);
+        if (expected == null) {
+            expect(res.length).toEqual(0);
+        } else {
+            expect(res.length).toEqual(1);
+            expect(res[0].result).toEqual(expected);
+            expect(res[0].rest).toEqual("");
+        }
+    }
+}
 
 describe("combinator tests", () => {
-    it("lower", () => {
-        const source = "a";
-        const res = lower(source);
-        expect(res.length).toEqual(1);
-        expect(res[0].result).toEqual("a");
-        expect(res[0].rest).toEqual("");
-    });
+    it("plus", () => suite(plus(upper, lower), [
+        { source: "A", expected: "A" },
+        { source: "a", expected: "a" },
+        { source: "1", expected: null }
+    ]));
 
-    it("upper", () => {
-        const source = "A";
-        const res = upper(source);
-        expect(res.length).toEqual(1);
-        expect(res[0].result).toEqual("A");
-        expect(res[0].rest).toEqual("");
-    });
+    it("anychar", () => suite(anyChar, [
+        { source: "a", expected: "a" },
+        { source: "A", expected: "A" },
+        { source: "1", expected: "1" }
+    ]));
 
-    it("nat", () => {
-        const source = "123";
-        const res = nat(source);
-        expect(res.length).toEqual(1);
+    it("lower", () => suite(lower, [
+        { source: "a", expected: "a" },
+        { source: "A", expected: null },
+        { source: "2", expected: null },
+    ]));
 
-        expect(res[0].result).toEqual(123);
-        expect(res[0].rest).toEqual("");
+    it("upper", () => suite(upper, [
+        { source: "A", expected: "A" },
+        { source: "a", expected: null },
+        { source: "2", expected: null },
+    ]));
 
-        const sourceX = "asd";
-        const resX = nat(sourceX);
-        expect(resX.length).toEqual(0);
-    });
+    it("nat", () => suite(nat, [
+        { source: "aaaa", expected: null },
+        { source: "123", expected: 123 },
+    ]));
 
-    it("between", () => {
-        const source = "*bold*";
-        const parser = between(chr("*"), word, chr("*"));
+    it("between", () => suite(between(chr("*"), word, chr("*")), [
+        { source: "*bold*", expected: "bold" },
+        { source: "_bold*", expected: null },
+        { source: "bold*", expected: null },
+    ]));
 
-        const res = parser(source);
-        expect(res.length).toEqual(1);
-        expect(res[0].result).toEqual("bold");
-        expect(res[0].rest).toEqual("");
-    });
+    it("bracketed", () => suite(bracketed(nat), [
+        { source: "[123]", expected: 123 },
+        { source: "(123]", expected: null },
+        { source: "[123)", expected: null },
+        { source: "[123a]", expected: null },
+        { source: "[aaa]", expected: null },
+    ]));
 
-    it("plaintext", () => {
-        const source = "royale with cheese";
-        const parser = plaintext;
+    it("seq", () => suite(seq(letter, digit), [
+        { source: "a1", expected: ["a", "1"] },
+        { source: "T3", expected: ["T", "3"] },
+        { source: "3", expected: null },
+        { source: "G", expected: null },
+    ]));
 
-        const res = parser(source);
-
-        expect(res.length).toEqual(1);
-        expect(res[0].result).toEqual("royale with cheese");
-        expect(res[0].rest).toEqual("");
-    })
-
-    it("bracketed", () => {
-        const source = "[i love cheese]";
-        const parser = bracketed(plaintext);
-
-        const res = parser(source);
-
-        expect(res.length).toEqual(1);
-        expect(res[0].result).toEqual("i love cheese");
-    });
-
-    it("linktext", () => {
-        const source = "https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png";
-        const parser = linktext;
-        const res = parser(source);
-
-        expect(res.length).toEqual(1);
-        expect(res[0].result).toEqual("https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png");
-        expect(res[0].rest).toEqual("");
-    });
-
-    it("image", () => {
-        const source = "![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png)";
-        const parser = imageLink;
-
-        const res = parser(source);
-        expect(res.length).toEqual(1);
-        expect(res[0].rest).toEqual("");
-
-        const img: ImageRun = res[0].result;
-        expect(img.alt).toEqual("alt text");
-        expect(img.href).toEqual("https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png");
-    });
-
-    it("code block", () => {
-        const source = "```code block```";
-        const parser = between(str("```"), plaintext, str("```"));
-        const res = parser(source);
-
-        expect(res[0].result).toEqual("code block");
-    })
-
-    it("css", () => {
-        const source = "[123]{#blue}";
-
-        const cssClass = bind(chr("#"), _ => plaintext);
-
-        const parser: Parser<EndResult> = bind(
-            bracketed(nat),
-            a => bind(
-                between(chr("{"), cssClass, chr("}")),
-                b => result({ type: "span", text: a, class: b })
-            ));
-
-        const res = parser(source);
-        expect(res[0].result).toEqual({ type: "span", text: 123, class: "blue" });
-    });
-
-    it("words", () => {
-        const source = " asd dsa kldsa dksa";
-
-        const parser = sepBy1(word, space);
-
-        const res = parser(source);
-
-        expect(res[0].result).toEqual(["asd", "dsa", "kldsa", "dksa"]);
-    });
+    it("str", () => suite(str("aaa"), [
+        { source: "aaa", expected: "aaa" },
+        { source: "aa", expected: null },
+        { source: "123", expected: null }
+    ]));
 });
-
-interface EndResult {
-    type: "span";
-    text: number;
-    class: string;
-}

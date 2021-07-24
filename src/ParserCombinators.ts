@@ -1,27 +1,5 @@
 import assert from "assert";
-
-export interface ParserCombinatorResult<T> {
-    result: T;
-    rest: string;
-}
-
-export type Parser<T> = (src: string) => ParserCombinatorResult<T>[];
-
-export const result = <T>(t: T): Parser<T> => (source) => [{ result: t, rest: source }];
-
-export const zero = <T>(_: string): ParserCombinatorResult<T>[] => [];
-
-export const bind = <A, B>(p: Parser<A>, f: (a: A) => Parser<B>): Parser<B> => (source) => {
-    const res = p(source);
-    if (res.length === 0) {
-        return [];
-    }
-
-    return res.flatMap(({ result, rest }) => {
-        const g = f(result)(rest);
-        return g;
-    });
-}
+import { bind, Parser, ParserCombinatorResult, plus, result, zero } from "./CombinatorBase";
 
 export const seq = <A, B>(p: Parser<A>, q: Parser<B>): Parser<[A, B]> => (
     bind(p, x => (
@@ -41,20 +19,11 @@ export const sat = (p: (c: char) => boolean): Parser<char> => {
     });
 }
 
-
 export const item = (source: string): ParserCombinatorResult<char>[] => {
     if (source.length < 1) {
         return [];
     }
     return [{ result: source[0], rest: source.slice(1) }];
-}
-
-export const plus = <A>(p: Parser<A>, q: Parser<A>): Parser<A> => (source) => {
-    const first = p(source);
-    if (first.length > 0) {
-        return first;
-    }
-    return q(source);
 }
 
 export const chr = (c: string) => sat(x => {
@@ -72,7 +41,6 @@ export const str = (s: string) => (source: string): ParserCombinatorResult<strin
         return [{ result: s, rest: source.slice(s.length) }]
     }
     return [];
-
 };
 
 export const many1 = <T>(p: Parser<T>): Parser<T[]> => bind(p, t => bind(many(p), ts => result([t, ...ts])));
