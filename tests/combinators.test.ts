@@ -1,5 +1,5 @@
 import { Parser, plus } from "../src/CombinatorBase";
-import { anyChar, bracketed, digit, letter, lower, nat, sepBy1, space, upper, word } from "../src/CombinatorLib";
+import { anyChar, bracketed, digit, letter, lower, nat, sepBy, sepBy1, space, upper, word } from "../src/CombinatorLib";
 import { between, chr, many1, seq, str } from "../src/ParserCombinators";
 
 interface Case<T> {
@@ -15,7 +15,6 @@ const suite = <T>(parser: Parser<T>, cases: Case<T>[]) => {
         } else {
             expect(res.length).toEqual(1);
             expect(res[0].result).toEqual(expected);
-            expect(res[0].rest).toEqual("");
         }
     }
 }
@@ -75,5 +74,17 @@ describe("combinator tests", () => {
         { source: "aaa", expected: "aaa" },
         { source: "aa", expected: null },
         { source: "123", expected: null }
+    ]));
+
+    it("sepBy1", () => suite(sepBy1(nat, space), [
+        { source: "1 2 3", expected: [1, 2, 3] },
+        { source: "", expected: null },
+        { source: "a 3", expected: null },
+    ]));
+
+    it("sepBy", () => suite(sepBy(nat, space), [
+        { source: "1 2 3", expected: [1, 2, 3] },
+        { source: "", expected: [] },
+        { source: "a 2, 3", expected: [] },
     ]));
 });
