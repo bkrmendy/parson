@@ -2,7 +2,7 @@ import { link } from "fs";
 import { BasicMark, ImageRun, MarkdownBlock, MarkdownFragment } from "./BasicMark.types";
 import { BasicMarkBuilder } from "./BasicMarkBuilder";
 import { bracketed, las, letter, linkLetter, parenthesised } from "./CombinatorLib";
-import { bind, charp, many, Parser, plus, result } from "./ParserCombinators";
+import { bind, chr, many, Parser, plus, result } from "./ParserCombinators";
 import { Result, ResultBuilder } from "./Result";
 
 export function basicMark(source: String): Result<BasicMark, string> {
@@ -24,7 +24,7 @@ export const plaintext = bind(many(las), ls => result(ls.join("")));
 export const linktext = bind(many(linkLetter), ls => result(ls.join("")));
 
 export const imageLink: Parser<ImageRun> = bind(
-    charp("!"), _ => (
+    chr("!"), _ => (
         bind(bracketed(plaintext), alt =>
             bind(parenthesised(linktext),
                 href => result(BasicMarkBuilder.image(alt, href)))

@@ -1,5 +1,5 @@
 import assert from "assert";
-import { between, bind, char, charp, many, many1, Parser, plus, result, sat } from "./ParserCombinators";
+import { between, bind, char, chr, many, many1, Parser, plus, result, sat } from "./ParserCombinators";
 
 const inCharRangeOf = (low: char, hi: char) => (c: char) => {
     assert(low.length === 1);
@@ -29,7 +29,7 @@ export const anyChar = sat(x => {
 
 export const letter = plus(lower, upper);
 export const alphanum = plus(letter, digit);
-export const space = charp(" ");
+export const space = chr(" ");
 export const las /* alphanum, space */ = plus(alphanum, space);
 
 export const linkLetter = plus(
@@ -49,7 +49,7 @@ export const word: Parser<string> = plus(wordI, result(""));
 
 export const nat: Parser<number> = bind(many1(digit), x => result(parseFloat(x.join(''))));
 
-export const parenthesised = <T>(p: Parser<T>) => between(charp("("), p, charp(")"));
-export const bracketed = <T>(p: Parser<T>) => between(charp("["), p, charp("]"));
+export const parenthesised = <T>(p: Parser<T>) => between(chr("("), p, chr(")"));
+export const bracketed = <T>(p: Parser<T>) => between(chr("["), p, chr("]"));
 
 export const sepBy1 = <T, S>(p: Parser<T>, sep: Parser<S>): Parser<T[]> => many(bind(sep, _ => p));

@@ -1,7 +1,7 @@
 import { ImageRun } from "../src/BasicMark.types";
 import { imageLink, linktext, plaintext } from "../src/BasicMarkParser";
 import { bracketed, letter, lower, nat, parenthesised, sepBy1, space, upper, word } from "../src/CombinatorLib";
-import { between, bind, charp, many1, Parser, result } from "../src/ParserCombinators";
+import { between, bind, chr, many1, Parser, result, str } from "../src/ParserCombinators";
 
 describe("combinator tests", () => {
     it("lower", () => {
@@ -23,14 +23,10 @@ describe("combinator tests", () => {
     it("nat", () => {
         const source = "123";
         const res = nat(source);
-        expect(res.length).toEqual(3);
+        expect(res.length).toEqual(1);
 
         expect(res[0].result).toEqual(123);
         expect(res[0].rest).toEqual("");
-
-        expect(res[1].result).toEqual(12);
-        expect(res[1].rest).toEqual("3");
-
 
         const sourceX = "asd";
         const resX = nat(sourceX);
@@ -39,7 +35,7 @@ describe("combinator tests", () => {
 
     it("between", () => {
         const source = "*bold*";
-        const parser = between(charp("*"), word, charp("*"));
+        const parser = between(chr("*"), word, chr("*"));
 
         const res = parser(source);
         expect(res.length).toEqual(1);
@@ -53,7 +49,7 @@ describe("combinator tests", () => {
 
         const res = parser(source);
 
-        expect(res.length).toEqual(19);
+        expect(res.length).toEqual(1);
         expect(res[0].result).toEqual("royale with cheese");
         expect(res[0].rest).toEqual("");
     })
@@ -73,7 +69,7 @@ describe("combinator tests", () => {
         const parser = linktext;
         const res = parser(source);
 
-        expect(res.length).toEqual(80);
+        expect(res.length).toEqual(1);
         expect(res[0].result).toEqual("https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png");
         expect(res[0].rest).toEqual("");
     });
@@ -89,17 +85,25 @@ describe("combinator tests", () => {
         const img: ImageRun = res[0].result;
         expect(img.alt).toEqual("alt text");
         expect(img.href).toEqual("https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png");
+    });
+
+    it("code block", () => {
+        const source = "```code block```";
+        const parser = between(str("```"), plaintext, str("```"));
+        const res = parser(source);
+
+        expect(res[0].result).toEqual("code block");
     })
 
     it("css", () => {
         const source = "[123]{#blue}";
 
-        const cssClass = bind(charp("#"), _ => plaintext);
+        const cssClass = bind(chr("#"), _ => plaintext);
 
         const parser: Parser<EndResult> = bind(
             bracketed(nat),
             a => bind(
-                between(charp("{"), cssClass, charp("}")),
+                between(chr("{"), cssClass, chr("}")),
                 b => result({ type: "span", text: a, class: b })
             ));
 
@@ -113,8 +117,6 @@ describe("combinator tests", () => {
         const parser = sepBy1(word, space);
 
         const res = parser(source);
-
-        console.log(res);
 
         expect(res[0].result).toEqual(["asd", "dsa", "kldsa", "dksa"]);
     });

@@ -50,12 +50,30 @@ export const item = (source: string): ParserCombinatorResult<char>[] => {
 }
 
 export const plus = <A>(p: Parser<A>, q: Parser<A>): Parser<A> => (source) => {
-    return p(source).concat(...q(source));
+    const first = p(source);
+    if (first.length > 0) {
+        return first;
+    }
+    return q(source);
 }
 
-export const charp = (c: string) => sat(x => {
+export const chr = (c: string) => sat(x => {
+    assert(x.length === 1);
     return x === c;
 });
+
+export const str = (s: string) => (source: string): ParserCombinatorResult<string>[] => {
+    assert(str.length !== 0);
+    if (source.length < s.length) {
+        return [];
+    }
+    const prefix = source.slice(0, s.length);
+    if (prefix === s) {
+        return [{ result: s, rest: source.slice(s.length) }]
+    }
+    return [];
+
+};
 
 export const many1 = <T>(p: Parser<T>): Parser<T[]> => bind(p, t => bind(many(p), ts => result([t, ...ts])));
 
