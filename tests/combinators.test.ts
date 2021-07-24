@@ -1,6 +1,5 @@
 import { Parser, plus } from "../src/CombinatorBase";
-import { anyChar, bracketed, digit, letter, lower, nat, sepBy, sepBy1, space, upper, word } from "../src/CombinatorLib";
-import { between, chr, many1, seq, str } from "../src/ParserCombinators";
+import { anyChar, bracketed, digit, letter, lower, nat, sepBy, sepBy1, space, upper, word, between, chr, many1, seq, str, many } from "../src/ParserCombinators";
 
 interface Case<T> {
     source: string;
@@ -86,5 +85,19 @@ describe("combinator tests", () => {
         { source: "1 2 3", expected: [1, 2, 3] },
         { source: "", expected: [] },
         { source: "a 2, 3", expected: [] },
+    ]));
+
+    it("many1", () => suite(many1(digit), [
+        { source: "111222", expected: ["1", "1", "1", "2", "2", "2"] },
+        { source: "111a222", expected: ["1", "1", "1"] },
+        { source: "a111222", expected: null },
+        { source: "", expected: null },
+    ]));
+
+    it("many", () => suite(many(digit), [
+        { source: "111222", expected: ["1", "1", "1", "2", "2", "2"] },
+        { source: "111a222", expected: ["1", "1", "1"] },
+        { source: "a111222", expected: [] },
+        { source: "", expected: [] },
     ]));
 });
