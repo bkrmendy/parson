@@ -48,5 +48,12 @@ export const nat: Parser<number> = bind(many1(digit), x => result(parseFloat(x.j
 export const parenthesised = <T>(p: Parser<T>) => between(chr("("), p, chr(")"));
 export const bracketed = <T>(p: Parser<T>) => between(chr("["), p, chr("]"));
 
-export const sepBy1 = <T, S>(p: Parser<T>, sep: Parser<S>): Parser<T[]> => many(bind(sep, _ => p));
 export const sepBy = <T, S>(p: Parser<T>, sep: Parser<S>): Parser<T[]> => plus(sepBy1(p, sep), result([]));
+
+export const sepBy1 = <T, S>(p: Parser<T>, sep: Parser<S>): Parser<T[]> => bind(
+    p,
+    (x: T) => bind(
+        many(bind(sep, _ => p)),
+        (xs: T[]) => result([x, ...xs])
+    )
+);
