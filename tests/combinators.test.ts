@@ -1,4 +1,4 @@
-import Parson, { Parser, ParserCombinatorResult } from "../src/Parson";
+import Parson, { Parser } from "../src/Parson";
 
 interface Case<T> {
     source: string;
