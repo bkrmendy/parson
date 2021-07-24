@@ -1,5 +1,4 @@
-import { Parser, plus } from "../src/CombinatorBase";
-import { anyChar, bracketed, digit, letter, lower, nat, sepBy, sepBy1, space, upper, word, between, chr, many1, seq, str, many } from "../src/ParserCombinators";
+import Parson, { Parser, ParserCombinatorResult } from "../src/Parson";
 
 interface Case<T> {
     source: string;
@@ -19,42 +18,42 @@ const suite = <T>(parser: Parser<T>, cases: Case<T>[]) => {
 }
 
 describe("combinator tests", () => {
-    it("plus", () => suite(plus(upper, lower), [
+    it("plus", () => suite(Parson.plus(Parson.upper, Parson.lower), [
         { source: "A", expected: "A" },
         { source: "a", expected: "a" },
         { source: "1", expected: null }
     ]));
 
-    it("anychar", () => suite(anyChar, [
+    it("anychar", () => suite(Parson.anyChar, [
         { source: "a", expected: "a" },
         { source: "A", expected: "A" },
         { source: "1", expected: "1" }
     ]));
 
-    it("lower", () => suite(lower, [
+    it("lower", () => suite(Parson.lower, [
         { source: "a", expected: "a" },
         { source: "A", expected: null },
         { source: "2", expected: null },
     ]));
 
-    it("upper", () => suite(upper, [
+    it("upper", () => suite(Parson.upper, [
         { source: "A", expected: "A" },
         { source: "a", expected: null },
         { source: "2", expected: null },
     ]));
 
-    it("nat", () => suite(nat, [
+    it("nat", () => suite(Parson.nat, [
         { source: "aaaa", expected: null },
         { source: "123", expected: 123 },
     ]));
 
-    it("between", () => suite(between(chr("*"), word, chr("*")), [
+    it("between", () => suite(Parson.between(Parson.chr("*"), Parson.word, Parson.chr("*")), [
         { source: "*bold*", expected: "bold" },
         { source: "_bold*", expected: null },
         { source: "bold*", expected: null },
     ]));
 
-    it("bracketed", () => suite(bracketed(nat), [
+    it("bracketed", () => suite(Parson.bracketed(Parson.nat), [
         { source: "[123]", expected: 123 },
         { source: "(123]", expected: null },
         { source: "[123)", expected: null },
@@ -62,39 +61,39 @@ describe("combinator tests", () => {
         { source: "[aaa]", expected: null },
     ]));
 
-    it("seq", () => suite(seq(letter, digit), [
+    it("seq", () => suite(Parson.seq(Parson.letter, Parson.digit), [
         { source: "a1", expected: ["a", "1"] },
         { source: "T3", expected: ["T", "3"] },
         { source: "3", expected: null },
         { source: "G", expected: null },
     ]));
 
-    it("str", () => suite(str("aaa"), [
+    it("str", () => suite(Parson.str("aaa"), [
         { source: "aaa", expected: "aaa" },
         { source: "aa", expected: null },
         { source: "123", expected: null }
     ]));
 
-    it("sepBy1", () => suite(sepBy1(nat, space), [
+    it("sepBy1", () => suite(Parson.sepBy1(Parson.nat, Parson.space), [
         { source: "1 2 3", expected: [1, 2, 3] },
         { source: "", expected: null },
         { source: "a 3", expected: null },
     ]));
 
-    it("sepBy", () => suite(sepBy(nat, space), [
+    it("sepBy", () => suite(Parson.sepBy(Parson.nat, Parson.space), [
         { source: "1 2 3", expected: [1, 2, 3] },
         { source: "", expected: [] },
         { source: "a 2, 3", expected: [] },
     ]));
 
-    it("many1", () => suite(many1(digit), [
+    it("many1", () => suite(Parson.many1(Parson.digit), [
         { source: "111222", expected: ["1", "1", "1", "2", "2", "2"] },
         { source: "111a222", expected: ["1", "1", "1"] },
         { source: "a111222", expected: null },
         { source: "", expected: null },
     ]));
 
-    it("many", () => suite(many(digit), [
+    it("many", () => suite(Parson.many(Parson.digit), [
         { source: "111222", expected: ["1", "1", "1", "2", "2", "2"] },
         { source: "111a222", expected: ["1", "1", "1"] },
         { source: "a111222", expected: [] },
