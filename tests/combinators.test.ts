@@ -1,3 +1,4 @@
+import { digit, lower } from "../src/ParserCombinators";
 import Parson, { Parser } from "../src/Parson";
 
 interface Case<T> {
@@ -98,5 +99,12 @@ describe("combinator tests", () => {
         { source: "111a222", expected: ["1", "1", "1"] },
         { source: "a111222", expected: [] },
         { source: "", expected: [] },
+    ]));
+
+    it("alternative", () => suite(Parson.alternative([Parson.upper, Parson.lower, Parson.digit]), [
+        { source: "1", expected: "1" },
+        { source: "a", expected: "a" },
+        { source: "A", expected: "A" },
+        { source: " ", expected: null }
     ]));
 });

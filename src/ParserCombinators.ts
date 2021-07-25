@@ -108,3 +108,9 @@ export const between = <A, B, C>(start: Parser<A>, p: Parser<B>, end: Parser<C>)
         bind(p, res =>
             bind(end, _ => result(res))))
 );
+
+export const alternative = <T>(ps: Parser<T>[]): Parser<T> => {
+    assert(ps.length > 0);
+    const [p, ...rest] = ps;
+    return rest.reduce(plus, p);
+}
