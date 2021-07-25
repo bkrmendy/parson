@@ -105,6 +105,13 @@ describe("combinator tests", () => {
         { source: "1", expected: "1" },
         { source: "a", expected: "a" },
         { source: "A", expected: "A" },
-        { source: " ", expected: null }
+        { source: " ", expected: null },
+        { source: "", expected: null },
+    ]));
+
+    it("option", () => suite(Parson.option(Parson.nat, 3), [
+        { source: "1", expected: 1 },
+        { source: "asdasd", expected: 3 },
+        { source: "", expected: 3 }
     ]));
 });

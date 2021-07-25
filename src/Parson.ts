@@ -1,7 +1,6 @@
-import { string } from "yargs";
 import * as CombinatorBase from "./CombinatorBase";
 import { result, zero, bind, plus } from "./CombinatorBase";
-import { seq, sat, item, chr, str, many1, many, between, digit, lower, upper, anyChar, alphanum, letter, space, word, nat, parenthesised, bracketed, sepBy, sepBy1, alternative } from "./ParserCombinators";
+import { seq, sat, item, chr, str, many1, many, between, digit, lower, upper, anyChar, alphanum, letter, space, word, nat, parenthesised, bracketed, sepBy, sepBy1, alternative, option } from "./ParserCombinators";
 
 export import Parser = CombinatorBase.Parser;
 export import ParserCombinatorResult = CombinatorBase.ParserCombinatorResult;
@@ -45,7 +44,8 @@ const Parson = {
     many1,
     between,
     alternative,
-    parse
+    parse,
+    option
 };
 
 export default Parson;

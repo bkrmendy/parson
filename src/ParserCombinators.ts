@@ -114,3 +114,5 @@ export const alternative = <T>(ps: Parser<T>[]): Parser<T> => {
     const [p, ...rest] = ps;
     return rest.reduce(plus, p);
 }
+
+export const option = <T>(p: Parser<T>, otherwise: T): Parser<T> => plus(p, result(otherwise));
