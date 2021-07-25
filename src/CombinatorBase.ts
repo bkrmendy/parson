@@ -20,3 +20,10 @@ export const plus = <A>(p: Parser<A>, q: Parser<A>): Parser<A> => (source) => {
     }
     return q(source);
 }
+
+export const empty = <T>(src: string): ParserCombinatorResult<string>[] => {
+    if (src.length === 0) {
+        return [{ result: "", rest: "" }];
+    }
+    return [];
+}

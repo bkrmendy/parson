@@ -122,4 +122,9 @@ describe("combinator tests", () => {
         { source: "13", expected: null },
         { source: "", expected: null }
     ]));
+
+    it("empty", () => suite(Parson.empty, [
+        { source: "13", expected: null },
+        { source: "", expected: "" }
+    ]));
 });
