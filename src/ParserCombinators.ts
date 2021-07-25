@@ -116,3 +116,5 @@ export const alternative = <T>(ps: Parser<T>[]): Parser<T> => {
 }
 
 export const option = <T>(p: Parser<T>, otherwise: T): Parser<T> => plus(p, result(otherwise));
+
+export const stringOf = (p: Parser<string>): Parser<string> => bind(many1(p), ps => result(ps.join("")));

@@ -1,6 +1,6 @@
 import * as CombinatorBase from "./CombinatorBase";
 import { result, zero, bind, plus } from "./CombinatorBase";
-import { seq, sat, item, chr, str, many1, many, between, digit, lower, upper, anyChar, alphanum, letter, space, word, nat, parenthesised, bracketed, sepBy, sepBy1, alternative, option } from "./ParserCombinators";
+import { seq, sat, item, chr, str, many1, many, between, digit, lower, upper, anyChar, alphanum, letter, space, word, nat, parenthesised, bracketed, sepBy, sepBy1, alternative, option, stringOf } from "./ParserCombinators";
 
 export import Parser = CombinatorBase.Parser;
 export import ParserCombinatorResult = CombinatorBase.ParserCombinatorResult;
@@ -45,7 +45,8 @@ const Parson = {
     between,
     alternative,
     parse,
-    option
+    option,
+    stringOf
 };
 
 export default Parson;

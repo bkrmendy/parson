@@ -18,6 +18,23 @@ const suite = <T>(parser: Parser<T>, cases: Case<T>[]) => {
     }
 }
 
+describe("top-level parse function", () => {
+    it("parse function with OK input", () => {
+        const res = Parson.parse("123", Parson.nat);
+        expect(res).toEqual(123);
+    });
+
+    it("parse function, but it did not consume all input", () => {
+        const res = Parson.parse("123a", Parson.nat);
+        expect(res).toEqual(null);
+    });
+
+    it("parse function, but with a parser that fails", () => {
+        const res = Parson.parse("aaa", Parson.nat);
+        expect(res).toEqual(null);
+    });
+})
+
 describe("combinator tests", () => {
     it("plus", () => suite(Parson.plus(Parson.upper, Parson.lower), [
         { source: "A", expected: "A" },
@@ -113,5 +130,13 @@ describe("combinator tests", () => {
         { source: "1", expected: 1 },
         { source: "asdasd", expected: 3 },
         { source: "", expected: 3 }
+    ]));
+
+    it("stringOf", () => suite(Parson.stringOf(Parson.upper), [
+        { source: "AAA", expected: "AAA" },
+        { source: "AAa", expected: "AA" },
+        { source: "aAA", expected: null },
+        { source: "13", expected: null },
+        { source: "", expected: null }
     ]));
 });
